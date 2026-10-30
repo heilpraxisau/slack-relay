@@ -41,7 +41,21 @@ Beide Keys sind kostenpflichtig nach Verbrauch. Bei normalem Gebrauch
 (ein paar Dutzend Nachrichten am Tag) liegt das im Cent- bis unteren Eurobereich
 pro Monat. Spending-Limits in beiden Konsolen setzen.
 
-### 3. Hosting auf Railway
+### 3. Hosting
+
+Stand 30.10.2026: Railway hatte Neuanmeldungen gesperrt, deshalb läuft der
+Relay auf Render. Die Railway-Schritte unten gelten sinngemäß weiter.
+
+**Render.com:** Dashboard → **New** → **Web Service** → GitHub-Repo
+`heilpraxisau/slack-relay` → Runtime wird als Docker erkannt →
+Variablen aus `.env.example` eintragen → Healthcheck-Pfad `/health` →
+Create. Die Service-URL ist die Webansicht.
+
+Free-Tarif schläft nach 15 Minuten ohne Aufrufe ein; der Relay verliert
+dann die Slack-Verbindung bis zum nächsten Aufruf. Für Dauerbetrieb
+auf den kleinsten bezahlten Tarif („Starter") umstellen.
+
+### 3b. Hosting auf Railway (Alternative)
 
 1. Repo auf GitHub pushen (`.env` ist per `.gitignore` ausgeschlossen).
 2. <https://railway.app> → **New Project** → **Deploy from GitHub repo** → dieses Repo.
