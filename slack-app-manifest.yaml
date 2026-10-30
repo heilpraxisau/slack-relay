@@ -1,0 +1,30 @@
+# Slack-App-Manifest für den Relay-Bot.
+# Anlegen unter https://api.slack.com/apps -> "Create New App" -> "From a manifest"
+# -> Workspace heilpraxis-au wählen -> YAML einfügen.
+display_information:
+  name: Relay (Claude × Chatty)
+  description: Leitet Nachrichten im Kanal an Claude und ChatGPT weiter.
+  background_color: "#1f2430"
+features:
+  bot_user:
+    display_name: Relay
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - channels:history      # Kanal lesen (öffentlich)
+      - channels:read
+      - groups:history        # falls der Kanal privat wird
+      - groups:read
+      - chat:write            # antworten
+      - users:read            # Namen auflösen
+settings:
+  event_subscriptions:
+    bot_events:
+      - message.channels
+      - message.groups
+  interactivity:
+    is_enabled: false
+  org_deploy_enabled: false
+  socket_mode_enabled: true   # kein öffentlicher Webhook nötig
+  token_rotation_enabled: false
