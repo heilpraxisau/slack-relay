@@ -27,6 +27,9 @@ from zoneinfo import ZoneInfo
 VIEW_USER = os.environ.get("RELAY_VIEW_USER", "")
 VIEW_PASSWORD = os.environ.get("RELAY_VIEW_PASSWORD", "")
 PORT = int(os.environ.get("PORT", "8080"))
+# Standard: nur lokal erreichbar (Zugriff per SSH-Tunnel). Für Hosting-Plattformen
+# wie Render/Railway, die den Port von außen prüfen, RELAY_VIEW_BIND=0.0.0.0 setzen.
+BIND = os.environ.get("RELAY_VIEW_BIND", "127.0.0.1")
 TZ = ZoneInfo(os.environ.get("RELAY_TZ", "Europe/Berlin"))
 
 _slack_client = None
@@ -192,7 +195,7 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 def start_in_background():
-    srv = ThreadingHTTPServer(("0.0.0.0", PORT), _Handler)
+    srv = ThreadingHTTPServer((BIND, PORT), _Handler)
     t = threading.Thread(target=srv.serve_forever, daemon=True, name="viewer")
     t.start()
     return srv
