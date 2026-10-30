@@ -24,7 +24,8 @@ if command -v dnf >/dev/null; then
   # dnf lädt große Paketlisten und sprengt auf 1-GB-Micro-Servern den RAM:
   # nur aufrufen, wenn wirklich etwas fehlt.
   MISSING=""
-  for p in git python3 python3-pip; do rpm -q "$p" >/dev/null 2>&1 || MISSING="$MISSING $p"; done
+  NEED="python3 python3-pip"; [ -z "$SRC_DIR" ] && NEED="git $NEED"
+for p in $NEED; do rpm -q "$p" >/dev/null 2>&1 || MISSING="$MISSING $p"; done
   if [ -n "$MISSING" ]; then sudo dnf install -y -q $MISSING >/dev/null; fi
   FIREWALL=firewalld
 else
