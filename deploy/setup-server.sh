@@ -21,7 +21,11 @@ SRC_DIR="${SRC_DIR:-}"
 echo "==> Pakete"
 if command -v dnf >/dev/null; then
   # Oracle Linux / RHEL-Familie
-  sudo dnf install -y -q git python3 python3-pip >/dev/null
+  # dnf lädt große Paketlisten und sprengt auf 1-GB-Micro-Servern den RAM:
+  # nur aufrufen, wenn wirklich etwas fehlt.
+  MISSING=""
+  for p in git python3 python3-pip; do rpm -q "$p" >/dev/null 2>&1 || MISSING="$MISSING $p"; done
+  if [ -n "$MISSING" ]; then sudo dnf install -y -q $MISSING >/dev/null; fi
   FIREWALL=firewalld
 else
   # Ubuntu / Debian
@@ -46,8 +50,7 @@ fi
 
 echo "==> Python-Umgebung"
 sudo python3 -m venv "$APP_DIR/.venv"
-sudo "$APP_DIR/.venv/bin/pip" install -q --upgrade pip
-sudo "$APP_DIR/.venv/bin/pip" install -q -r "$APP_DIR/requirements.txt"
+sudo "$APP_DIR/.venv/bin/pip" install -q --no-cache-dir -r "$APP_DIR/requirements.txt"
 
 if [ ! -f "$APP_DIR/.env" ]; then
   sudo cp "$APP_DIR/.env.example" "$APP_DIR/.env"
