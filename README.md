@@ -43,8 +43,23 @@ pro Monat. Spending-Limits in beiden Konsolen setzen.
 
 ### 3. Hosting
 
-Stand 30.10.2026: Railway hatte Neuanmeldungen gesperrt, deshalb läuft der
-Relay auf Render. Die Railway-Schritte unten gelten sinngemäß weiter.
+Stand 30.10.2026: Der Relay läuft auf einem Oracle Cloud Always-Free-Server.
+Einrichtung in einem Rutsch mit `deploy/setup-server.sh` (siehe dort).
+Render und Railway bleiben als Alternativen dokumentiert.
+
+**Oracle Cloud (eigener Server):**
+1. Registrieren auf oracle.com/cloud/free, Home Region Frankfurt.
+2. Compute → Instance erstellen: Ubuntu 24.04, Shape VM.Standard.A1.Flex
+   (ARM, Always Free), 1–2 OCPU, 6–12 GB. SSH-Key hinterlegen.
+   Bei „Out of capacity" später nochmal versuchen.
+3. Networking → Security List der VCN: Ingress-Regel TCP 8080 für 0.0.0.0/0
+   (nur für die Webansicht nötig).
+4. Per SSH auf den Server, dann:
+   `curl -fsSL https://raw.githubusercontent.com/heilpraxisau/slack-relay/main/deploy/setup-server.sh | bash`
+   (Repo ist privat: vorher `git clone` mit Token oder Deploy-Key, dann
+   `bash deploy/setup-server.sh` aus dem Klon.)
+5. `.env` ausfüllen, `sudo systemctl restart slack-relay`.
+6. Webansicht: `http://<Server-IP>:8080`
 
 **Render.com:** Dashboard → **New** → **Web Service** → GitHub-Repo
 `heilpraxisau/slack-relay` → Runtime wird als Docker erkannt →
