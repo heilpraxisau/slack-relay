@@ -16,8 +16,16 @@ APP_DIR="/opt/slack-relay"
 SERVICE="slack-relay"
 
 echo "==> Pakete"
-sudo apt-get update -qq
-sudo apt-get install -y -qq git python3 python3-venv python3-pip ufw >/dev/null
+if command -v dnf >/dev/null; then
+  # Oracle Linux / RHEL-Familie
+  sudo dnf install -y -q git python3 python3-pip >/dev/null
+  FIREWALL=firewalld
+else
+  # Ubuntu / Debian
+  sudo apt-get update -qq
+  sudo apt-get install -y -qq git python3 python3-venv python3-pip ufw >/dev/null
+  FIREWALL=ufw
+fi
 
 echo "==> Code nach $APP_DIR"
 if [ -d "$APP_DIR/.git" ]; then
@@ -62,14 +70,22 @@ sudo systemctl daemon-reload
 sudo systemctl enable -q $SERVICE
 
 echo "==> Firewall: SSH + Webansicht (Port 8080)"
-sudo ufw allow OpenSSH >/dev/null
-sudo ufw allow 8080/tcp >/dev/null
-sudo ufw --force enable >/dev/null
-# Oracle-Images haben zusätzlich iptables-Regeln, die 8080 blocken:
-if command -v iptables >/dev/null; then
-  sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 8080 -j ACCEPT 2>/dev/null || true
-  sudo netfilter-persistent save 2>/dev/null || true
+if [ "$FIREWALL" = firewalld ]; then
+  sudo firewall-cmd --permanent --add-port=8080/tcp >/dev/null 2>&1 || true
+  sudo firewall-cmd --reload >/dev/null 2>&1 || true
+else
+  sudo ufw allow OpenSSH >/dev/null
+  sudo ufw allow 8080/tcp >/dev/null
+  sudo ufw --force enable >/dev/null
+  # Oracle-Ubuntu-Images haben zusätzlich iptables-Regeln, die 8080 blocken:
+  if command -v iptables >/dev/null; then
+    sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 8080 -j ACCEPT 2>/dev/null || true
+    sudo netfilter-persistent save 2>/dev/null || true
+  fi
 fi
+
+echo "==> Dienst starten (läuft ohne .env-Werte noch nicht, startet nach Eintrag automatisch neu)"
+sudo systemctl restart $SERVICE || true
 
 echo
 echo "Fertig. Nächste Schritte:"
