@@ -27,6 +27,9 @@ check("Bot ohne Übergabe", decide("🟠 *Claude*\nFertig, hier die Antwort.", f
 check("Bot erwähnt Partner mittendrin", decide("🟠 *Claude*\n@chatty hat recht, fertig.", from_relay=True), [])
 check("Fehlertext löst nichts aus", decide("🟠 *Claude*\n(Claude konnte nicht antworten: Timeout) @chatty", from_relay=True), [])
 
+check("Übergabe trotz Connector-Footer", decide("🟢 *Chatty*\nHallo, Testfrage? @claude *Gesendet mit* Claude", from_relay=True), [C])
+check("Footer wird entfernt", strip_prefix("@claude hi *Gesendet mit* Claude"), "hi")
+
 # --- Präfix entfernen ------------------------------------------------------
 check("strip Claude", strip_prefix("@claude wie geht das?"), "wie geht das?")
 check("strip beide", strip_prefix("beide: kurze Einschätzung"), "kurze Einschätzung")

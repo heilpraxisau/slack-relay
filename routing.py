@@ -30,7 +30,17 @@ _SLACK_MENTION = re.compile(r"<@[A-Z0-9]+>")
 _RELAY_TAGS = ("🟠 *Claude*", "🟢 *Chatty*")
 
 
+# Der Slack-Connector hängt an Nachrichten "*Gesendet mit* Claude" an; das darf
+# weder eine Übergabe am Textende verdecken noch in den Verlauf der Bots geraten.
+_FOOTER = re.compile(r"(\s*\*?_?Gesendet mit_?\*?\s*(Claude|ChatGPT|Chatty)\s*)+$", re.IGNORECASE)
+
+
+def strip_footer(text: str) -> str:
+    return _FOOTER.sub("", text).rstrip()
+
+
 def _clean(text: str) -> str:
+    text = strip_footer(text)
     text = _SLACK_MENTION.sub("", text)
     for tag in _RELAY_TAGS:
         if text.startswith(tag):

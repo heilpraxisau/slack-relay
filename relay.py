@@ -34,7 +34,7 @@ from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 from prompts import CLAUDE_SYSTEM, CHATTY_SYSTEM, ESCALATION_TEXT
-from routing import decide, strip_prefix, Target
+from routing import decide, strip_prefix, strip_footer, Target
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("relay")
@@ -144,7 +144,7 @@ def _fetch_thread(client, channel: str, thread_ts: str) -> list[dict]:
 
     history: list[dict] = []
     for m in messages:
-        text = (m.get("text") or "").strip()
+        text = strip_footer((m.get("text") or "").strip())
         if not text:
             continue
         if text.startswith(CLAUDE_TAG):
