@@ -62,7 +62,12 @@ anthropic_client = Anthropic()
 openai_client = OpenAI()
 # token_verification_enabled=False: Token wird nicht beim Start, sondern bei
 # der ersten echten Anfrage geprüft. Erlaubt Import-Tests ohne Live-Token.
-app = App(token=SLACK_BOT_TOKEN, token_verification_enabled=False)
+# ignore_self_middleware_enabled=False: Beide KIs posten über denselben Bot-Nutzer.
+# Bolt würde sonst eigene Nachrichten verwerfen und die Übergabe (@claude/@chatty
+# am Ende einer Bot-Antwort) nie sehen. Endlosschleifen verhindern MAX_BOT_TURNS
+# und die explizite Übergabe-Regel in routing.decide().
+app = App(token=SLACK_BOT_TOKEN, token_verification_enabled=False,
+          ignore_self_middleware_enabled=False)
 
 # Eigene Bot-User-ID, wird beim Start per auth.test geholt. Damit erkennen wir
 # eigene Nachrichten sicher über die ID, nicht nur über den Textpräfix.
